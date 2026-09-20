@@ -54,6 +54,32 @@ npm run dev
 Runs on `http://localhost:5173` and proxies `/api` to the backend (see
 `vite.config.ts`).
 
+### Mobile (Capacitor)
+
+The frontend is wrapped for native mobile via
+[Capacitor](https://capacitorjs.com/) rather than rewritten in React
+Native — reuses every component as-is, just adds native camera access
+(`frontend/src/capacitor/camera.ts`) and app packaging.
+`capacitor.config.ts` is already set up (`appId: com.ticktalk.app`), but
+**native platform projects aren't generated in this repo** — this
+environment has no Android SDK or Xcode, so `cap add` couldn't be
+verified here. To build a native app locally, once you have the
+toolchain installed:
+
+```bash
+cd frontend
+npm run build
+npx cap add android   # needs Android Studio / Android SDK
+npx cap add ios        # needs Xcode, macOS only
+npx cap sync
+npx cap open android    # or: npx cap open ios
+```
+
+The web app (`npm run dev`) works exactly as before in a plain browser —
+`UploadForm.tsx` falls back to a normal `<input type="file">` there and
+only switches to the native camera picker when running inside the
+Capacitor shell (`Capacitor.isNativePlatform()`).
+
 ### Both, via Docker
 
 ```bash
