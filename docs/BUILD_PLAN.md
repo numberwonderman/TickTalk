@@ -66,9 +66,16 @@ flashy demo with a training pipeline nobody trusts.
       reassurance ("looks fine", "low risk") vs. triage guidance.
 
 ## Milestone 4 — Eval + fairness report (by Oct 17)
-- [ ] Run the pipeline against held-out slices of DDI/PASSION/Fitzpatrick17k
-      (plus any EM-specific images we've sourced through a clean channel by
-      then), broken down by Fitzpatrick skin-tone group.
+- [x] Harness built (`backend/eval/harness.py`): takes a manifest CSV
+      (image path + Fitzpatrick skin type + ground truth), runs the OpenCV
+      segmentation/feature stage, reports detection rate and mean feature
+      values per skin-tone group, and flags a >15-point gap. Unit-tested
+      against synthetic images (`backend/tests/test_eval_harness.py`) and
+      smoke-tested via CLI — the harness itself works; it hasn't been run
+      against real data yet.
+- [ ] Run it against held-out slices of DDI/PASSION/Fitzpatrick17k (plus
+      any EM-specific images sourced through a clean channel by then) once
+      those are downloaded (`docs/DATASETS.md` Milestone 1).
 - [ ] Publish the breakdown in the repo (`docs/EVAL.md` or similar) even if
       the numbers aren't flattering — a documented gap is a safety feature
       of the writeup; a hidden one is a liability.
@@ -77,12 +84,19 @@ flashy demo with a training pipeline nobody trusts.
       photo of something unrelated).
 
 ## Milestone 5 — AWS wiring (by Oct 20)
-- [ ] Hosting decision finalized (see `docs/ARCHITECTURE.md` alternatives) —
-      depends on Milestone 0's rules confirmation (does judging require
-      compute on AWS, or is storage enough?).
-- [ ] Deploy: image storage in S3, backend running somewhere AWS-hosted per
-      whatever the rules require. Confirm any cost-bearing service with the
-      director (me) before provisioning — brief is explicit on this.
+- [x] Rules confirmed (`docs/OPEN_QUESTIONS.md`): a live screen-share demo
+      is an acceptable substitute for a judge-accessible web endpoint —
+      this removes the forcing function to host Qwen inference publicly.
+- [ ] Deploy S3 (image storage) + the CPU-only API/OpenCV/triage backend on
+      a small AWS Graviton instance, deliberately targeting the **COOL**
+      special award (`infra/README.md`) — its accelerated operations
+      (resize, adaptive Gaussian, contour detection) match our pipeline
+      directly. Confirm with the director before provisioning even this,
+      per the brief, but it's a free-tier-eligible instance, not a GPU one.
+- [ ] Decide, separately and later if needed, whether Qwen inference gets
+      a public endpoint (RunPod) or stays local-only for a live demo —
+      no longer blocking, revisit only if a public endpoint seems worth
+      the cost.
 
 ## Milestone 6 — Demo + submission polish (Oct 21–23)
 - [ ] Brett: demo video, locked by Oct 23.

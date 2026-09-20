@@ -157,26 +157,15 @@ benefits from static generation.
 
 ## AWS usage (draft — no paid services provisioned yet)
 
-- **S3** — store uploaded images (with a lifecycle rule to expire them;
-  we are not in the business of retaining people's medical photos longer
-  than necessary). Free-tier eligible at hackathon scale.
-- **Hosting** — two options, decide once `OPEN_QUESTIONS.md` #2 is answered
-  (does judging require AWS *compute*, or is storage enough?):
-  - **Lighter:** frontend on S3+CloudFront (static), backend on a single
-    small EC2 instance or App Runner. Simple, cheap, but "meaningful
-    component on AWS" is a stretch if the backend barely uses AWS services
-    beyond S3.
-  - **More AWS-forward:** backend on Lambda (via Mangum) or ECS Fargate,
-    fronted by API Gateway/ALB. More clearly "AWS-powered," more
-    infrastructure to manage in a 5-week window.
-  - Leaning toward the lighter option unless the rules require otherwise —
-    don't build infra the judging criteria don't ask for.
-- **RunPod** — noted per the brief as an option for shared/stronger GPU if
-  local inference (teammate's Qwen setup) becomes a bottleneck for the
-  demo. Not part of the default plan; only if local inference proves too
-  slow for a live demo.
-- Every item above with an ongoing cost needs the director's sign-off
-  before provisioning, per the brief.
+See `infra/README.md` for the current plan and its reasoning (kept there
+rather than duplicated here, since it's changed twice already as the
+competition rules and Brett's model got confirmed). Short version: S3 for
+image storage; the CPU-only API/OpenCV/triage backend targets a small AWS
+Graviton instance specifically to qualify for the competition's "COOL"
+special award; Qwen inference hosting (RunPod or otherwise) is deferred
+and no longer blocking, since the rules accept a live demo in place of a
+hosted endpoint. Every item with an ongoing cost needs the director's
+sign-off before provisioning, per the brief.
 
 ## Triage levels (see `backend/app/triage/levels.py` for the source of truth)
 
