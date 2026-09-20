@@ -28,6 +28,14 @@ a real constraint on this project, not a detail to gloss over — see
 - **License:** Free for personal, **non-commercial research** use only; no
   commercial use, sale, or monetization. Fine for a hackathon prototype and
   eval; would need a different license before any commercial use.
+  Confirmed additional terms (Muse verification pass, 2026-09-20): **each
+  team member must register individually** — download links may not be
+  shared between us — and redistribution/publication/reproduction of any
+  portion requires prior written permission. Also explicit: research use
+  only, not for diagnosis or patient care (matches our own "triage, not
+  diagnosis" boundary anyway, but worth knowing it's contractual here too).
+- **Access speed:** fast — registration via https://ddi-dataset.github.io/
+  is straightforward, no lengthy request process.
 - **Caveat:** General dermatology conditions, not EM-specific. Useful as a
   fairness-eval and negative/confounder set (other rashes that aren't Lyme),
   not as a primary EM training source.
@@ -43,10 +51,17 @@ a real constraint on this project, not a detail to gloss over — see
 - **Skin-tone coverage:** Labeled across all 6 Fitzpatrick types, but the
   underlying atlases skew toward lighter skin types despite the labeling
   effort — diversity is present but not balanced.
-- **License:** Research/educational use per the source atlases; the
-  underlying atlas images carry their own usage restrictions that need to be
-  re-checked before any use beyond research (their terms are more
-  restrictive than a standard open license — verify before relying on this).
+- **License — confirmed nuance (Muse verification pass, 2026-09-20):** the
+  repo's CC BY-NC-SA 3.0 license covers the **annotations and code only**.
+  The **images themselves belong to Atlas Dermatologico and DermaAmin**
+  under their own separate terms — the annotation license does not cover
+  the pixels. Treat this as confirming, not relaxing, the caution already
+  here: re-check the original atlases' terms before using the images, not
+  just the GitHub repo's license file.
+- **Access speed:** slowest of the three. The annotations CSV is available
+  immediately, but the full image set requires following the original
+  per-image source URLs (some are dead) or going through a Google request
+  form — plan for this to take longer than DDI or PASSION.
 - **Caveat:** Largest of the three, good for pretraining a general
   rash/lesion feature extractor, but not EM-specific and label noise is real.
 
@@ -62,6 +77,11 @@ a real constraint on this project, not a detail to gloss over — see
   close. Conditions covered are pediatric (eczema, fungal infections,
   scabies, impetigo), not EM.
 - **License:** PASSION public data license, **non-commercial use only**.
+  Confirmed additional terms (Muse verification pass, 2026-09-20):
+  attribution required, no re-identification attempts, no sharing direct
+  download links, no reposting images to other platforms.
+- **Access speed:** fastest of the three — direct download after agreeing
+  to the terms, no per-member registration or request form.
 - **Caveat:** Not EM-specific and skews pediatric, but the best available
   source of well-consented, well-documented dark-skin rash imagery.
 
@@ -103,6 +123,16 @@ one our project should name explicitly rather than quietly inherit.
    skin-tone group** using DDI/PASSION's tone labels as ground truth, not a
    model's guess at skin tone.
 
-*(All figures above are from the cited public pages/papers as of this
-research pass. Re-verify license text directly from each source before
-downloading or training — do not rely solely on this summary.)*
+## Access-speed ordering (for sequencing the download work)
+PASSION (fastest, direct download) → DDI (fast, individual registration
+per team member) → Fitzpatrick17k images (slowest — dead source links and
+a request form). All three confirmed realistically obtainable within the
+~5-week build timeline (Muse verification pass, 2026-09-20). Start
+Fitzpatrick17k's image request early given it's the long pole, even if
+PASSION/DDI get used first.
+
+*(License terms marked "confirmed" above were read directly from primary
+sources on 2026-09-20 via Muse, a teammate's research tool with normal
+web access — this environment's own network egress is blocked for these
+sites. Everything else is from the original research pass; re-verify
+anything not marked confirmed before downloading or training.)*
