@@ -1,49 +1,112 @@
 """Adapter for Brett's local Qwen-VL setup.
 
+Corrected after checking with Brett: his setup is NOT an HTTP server. His
+architecture (from an unrelated NGO-footage classification project) is
+UI -> Python backend -> Qwen Vision loaded in memory, i.e. an in-process
+model call, not a network request. This adapter should end up calling a
+Python function/object directly rather than making an HTTP request.
+
 This is intentionally thin: all Qwen-specific prompting/parsing lives here
 so that swapping in a stronger model later (per the brief) means writing a
 new adapter, not touching the triage engine or API layer.
 
-TODO(Brett): wire this up to the actual local Qwen Vision endpoint. Expected
-shape below is a guess based on a typical local OpenAI-compatible server
-(e.g. served via vLLM/text-generation-webui/ollama) -- replace with
-whatever your setup actually exposes.
+TODO(Brett): still need from you --
+  1. The actual import path / function signature for loading and calling
+     the model in-process (e.g. `from qwen_local import QwenClient` then
+     `client.generate(image, prompt) -> str`?). Replace the placeholder
+     `_load_model` / `_run_inference` calls below with the real thing.
+  2. What checkpoint/size you're running (affects memory footprint and
+     whether it's safe to load inside the FastAPI process vs. needing a
+     separate worker process).
+  3. Expected image input type for your loader (PIL.Image? raw bytes? a
+     specific tensor shape?) -- converted from our BGR np.ndarray below,
+     but need to know the target format.
+  4. Rough per-image latency on your hardware, to decide whether local
+     inference is viable for a live demo or we need the RunPod fallback
+     noted in infra/README.md.
+
+Calibration note (see model_interface.py): your NGO-footage classification
+prompt asks Qwen to self-report a "confidence" field directly in its JSON
+output, which is a reasonable pattern to reuse for the *shape* of the
+prompt/response here. But don't assume that number is calibrated for this
+use case without checking -- a VLM's self-reported confidence is typically
+NOT well-calibrated out of the box, and here (unlike footage tagging) an
+overconfident wrong answer has real safety cost. Validate it against a
+held-out labeled set (docs/BUILD_PLAN.md Milestone 4) before trusting it
+to drive the "low confidence always escalates" rule. If self-reported
+confidence proves unreliable, consider a self-consistency proxy instead
+(sample the same prompt N times, use agreement across samples as the
+confidence signal) rather than the model's own number.
 """
 
-import os
+import json
 
 import numpy as np
 
 from app.schemas.triage import Questionnaire
 from app.vision.model_interface import VisionModel, VisionModelOutput
 
-QWEN_ENDPOINT = os.environ.get("QWEN_VISION_ENDPOINT", "http://localhost:8001")
+# Structured-JSON prompt, following the same pattern Brett already
+# validated on the footage-classification project: ask for the exact
+# fields we need, nothing else, and forbid naming a specific disease.
+PROMPT = """You are assisting a triage tool, not making a diagnosis.
 
-# Below this, the adapter should prefer returning a low overall_confidence
-# rather than guessing -- see model_interface.py's calibration note.
-LOW_CONFIDENCE_FLOOR = 0.35
+Look at this photo of a skin rash and answer only about what is visibly
+present in the image.
+
+Do not name a specific disease or condition. Do not say whether this is or
+isn't Lyme disease. Only describe visual features and how confident you
+are in each observation.
+
+Return valid JSON only, in exactly this shape:
+
+{
+  "lesion_present": true,
+  "lesion_present_confidence": 0.0,
+  "bullseye_or_ring_pattern": false,
+  "bullseye_pattern_confidence": 0.0,
+  "overall_confidence": 0.0,
+  "notes": "one concise sentence describing only what is visibly present"
+}
+
+All confidence values are floats between 0.0 and 1.0."""
 
 
 class QwenVisionAdapter(VisionModel):
-    def __init__(self, endpoint: str = QWEN_ENDPOINT):
-        self.endpoint = endpoint
+    def __init__(self):
+        # TODO(Brett): load the model once here (matching your "loaded in
+        # memory" setup), not per-request -- reloading per request would
+        # make per-image latency far worse than your footage-classification
+        # pipeline, which loads once and processes frames in a loop.
+        self._model = None  # placeholder for the in-memory model handle
 
     def analyze(
         self, image: np.ndarray, questionnaire: Questionnaire
     ) -> VisionModelOutput:
-        # TODO(Brett): replace with a real call to your local Qwen Vision
-        # server. Suggested prompt structure (keep it asking for structured
-        # signals, not a diagnosis):
-        #
-        #   "Describe whether this skin photo shows: (1) a rash/lesion,
-        #    (2) a concentric ring / bullseye color pattern, (3) how
-        #    confident you are in each. Do not name a specific disease or
-        #    give a diagnosis."
-        #
-        # Parse the response into the three confidence scores below. Until
-        # this is wired up, raise so we don't silently ship a fake result.
+        # TODO(Brett): convert `image` (BGR np.ndarray, already
+        # preprocessed by backend/app/vision/preprocessing.py) to whatever
+        # input type your loader expects, then call it in-process with
+        # PROMPT. Until that's wired up, raise so we don't silently ship a
+        # fake result.
         raise NotImplementedError(
-            "QwenVisionAdapter.analyze() is not wired up yet. "
+            "QwenVisionAdapter.analyze() is not wired up yet -- needs "
+            "Brett's in-process model call, not an HTTP request. "
             "Set VISION_MODEL_BACKEND=mock to run against MockVisionModel "
             "in the meantime."
+        )
+
+    @staticmethod
+    def _parse_response(raw_json_text: str) -> VisionModelOutput:
+        """Once analyze() produces the model's raw text output, parse it
+        with this rather than duplicating parsing logic inline. Raises
+        ValueError on malformed output -- the caller should treat that as
+        a low-confidence result (see model_interface.py), not crash the
+        request.
+        """
+        data = json.loads(raw_json_text)
+        return VisionModelOutput(
+            lesion_present_confidence=float(data["lesion_present_confidence"]),
+            bullseye_pattern_confidence=float(data["bullseye_pattern_confidence"]),
+            overall_confidence=float(data["overall_confidence"]),
+            notes=str(data.get("notes", "")),
         )

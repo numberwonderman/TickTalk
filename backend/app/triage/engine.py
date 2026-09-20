@@ -45,8 +45,16 @@ def _decide_level(
     high_confidence = vision_confidence >= HIGH_CONFIDENCE_THRESHOLD
     low_confidence = vision_confidence < LOW_CONFIDENCE_THRESHOLD
 
-    # Urgent: strong bullseye-like signal at high confidence, or rash + fever.
-    if (strong_ring_pattern and high_confidence) or (q.fever and _any_rash_signal(features, vision_confidence)):
+    # Urgent: strong bullseye-like signal at high confidence, or fever
+    # combined with either a visual rash signal or known tick exposure.
+    # Fever + exposure is a systemic warning sign on its own -- the photo
+    # not showing a clear rash (not yet developed, wrong body area, poor
+    # lighting) must not suppress that signal. This must stay an OR against
+    # the photo, not an AND, or a real case with fever + exposure but an
+    # inconclusive photo would silently fail to escalate.
+    if strong_ring_pattern and high_confidence:
+        return TriageLevel.SEEK_CARE_URGENT
+    if q.fever and (q.tick_exposure or _any_rash_signal(features, vision_confidence)):
         return TriageLevel.SEEK_CARE_URGENT
 
     # Low confidence always escalates -- never falls through to "no concern".

@@ -107,10 +107,19 @@ diagnosis field, by design).
 - `MockVisionModel` — deterministic stub for local dev/tests. Always
   returns low confidence, so the default local dev experience is "this
   escalates," matching the product's own safety bias.
-- `QwenVisionAdapter` — calls Brett's local Qwen-VL setup (HTTP endpoint,
-  configurable via env var). This is a thin adapter; the prompt/parsing
-  logic lives here so swapping models later means writing a new adapter
-  class, not touching the triage engine.
+- `QwenVisionAdapter` — calls Brett's local Qwen-VL setup **in-process**
+  (loaded in memory by the backend, confirmed with Brett — not an HTTP
+  service). This is a thin adapter; the prompt/parsing logic lives here so
+  swapping models later means writing a new adapter class, not touching
+  the triage engine. Still needs from Brett: the actual load/call
+  interface, checkpoint size, input format, and per-image latency — see
+  the TODOs in `qwen_vision_adapter.py`. Uses a structured-JSON prompt
+  (same pattern Brett validated on an unrelated footage-classification
+  project — ask the model for an exact JSON shape including a confidence
+  field). That self-reported confidence should not be trusted as
+  calibrated without validating it against labeled data first (Milestone
+  4) — an LLM's own confidence number is not the same thing as the
+  calibrated probability the triage engine's escalation logic assumes.
 - `registry.py` picks the adapter from `VISION_MODEL_BACKEND` env var
   (`mock` | `qwen_local`), so backend, tests, and demo can run without the
   real model available.
@@ -171,11 +180,21 @@ benefits from static generation.
 
 ## Triage levels (see `backend/app/triage/levels.py` for the source of truth)
 
+Currently a deterministic set of hardcoded thresholds in
+`backend/app/triage/engine.py` — explainable by design, but see
+`docs/TRIAGE_LOGIC.md` for a proposed log-odds-based replacement that
+scales better as more signals (regional prior, tick species, etc.) get
+added, without each new signal becoming another if/else branch to
+hand-check against every existing one.
+
 Three levels, all of which recommend seeking care to some degree — there
 is deliberately no "cleared" level:
 
-1. **SEEK_CARE_URGENT** — high-confidence ring/bullseye pattern, or
-   rash + fever, or rapid reported growth → "see a doctor today / urgent
+1. **SEEK_CARE_URGENT** — high-confidence ring/bullseye pattern, or fever
+   combined with either a visual rash signal or known tick exposure (fever
+   + exposure escalates even if the photo itself is inconclusive — a
+   systemic symptom plus known exposure shouldn't be suppressed by an
+   unclear image), or rapid reported growth → "see a doctor today / urgent
    care."
 2. **SEEK_CARE_SOON** — rash present with lower specificity, or any tick
    exposure with a new rash, or **low model confidence** (confidence being

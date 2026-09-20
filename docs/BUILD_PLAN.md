@@ -40,10 +40,16 @@ flashy demo with a training pipeline nobody trusts.
       preprocessing an image before an LLM call.
 
 ## Milestone 2 — Triage engine + questionnaire (by Oct 8)
-- [ ] Deterministic rule engine (`backend/app/triage/engine.py`) combining:
+- [x] Deterministic rule engine (`backend/app/triage/engine.py`) combining:
       OpenCV features + VLM confidence + questionnaire (tick exposure,
       rash duration, fever) → one of the triage levels in
       `backend/app/triage/levels.py`.
+- [ ] Decide whether to upgrade to the log-odds design in
+      `docs/TRIAGE_LOGIC.md` before or after Milestone 4's eval pass —
+      it's a better structure for adding more signals without repeating
+      the kind of two-factor interaction bug the fever+exposure fix
+      caught (an if/else branch that silently didn't cover a real
+      combination of inputs).
 - [ ] Confidence calibration: define what "low confidence" means
       numerically for both the OpenCV features and the VLM output, and wire
       "low confidence → escalate" end to end. This is a non-negotiable per

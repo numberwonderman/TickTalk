@@ -68,8 +68,10 @@ hosting approach in `docs/BUILD_PLAN.md` Milestone 5.)
 The backend defaults to `VISION_MODEL_BACKEND=mock`, a deterministic
 low-confidence stub, so the app runs end-to-end with no ML dependency
 installed. To use a real model, implement
-`backend/app/vision/models/qwen_vision_adapter.py` against your local
-Qwen-VL endpoint and set `VISION_MODEL_BACKEND=qwen_local`. See
+`backend/app/vision/models/qwen_vision_adapter.py` against Brett's local
+Qwen-VL setup — it runs **in-process** (loaded in memory), not as an HTTP
+service — and set `VISION_MODEL_BACKEND=qwen_local`. See the TODOs in
+that file for what's still needed to finish it. See
 `backend/app/vision/model_interface.py` for the interface every model
 (current or future) implements — swapping models later should never
 require touching the triage engine.

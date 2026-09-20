@@ -49,6 +49,19 @@ def test_fever_with_any_rash_signal_is_urgent():
     assert result.level == TriageLevel.SEEK_CARE_URGENT
 
 
+def test_fever_and_exposure_is_urgent_even_with_inconclusive_photo():
+    """Fever + known tick exposure is a systemic warning sign on its own --
+    an inconclusive photo (not yet developed, wrong body area, bad
+    lighting) must not suppress escalation just because the image itself
+    shows nothing conclusive."""
+    result = evaluate_triage(
+        _features(),  # no visual signal at all
+        vision_confidence=0.9,  # even at high confidence in "nothing here"
+        questionnaire=_questionnaire(fever=True, tick_exposure=True),
+    )
+    assert result.level == TriageLevel.SEEK_CARE_URGENT
+
+
 def test_tick_exposure_with_rash_signal_is_at_least_seek_soon():
     result = evaluate_triage(
         _features(border_irregularity=0.1),
