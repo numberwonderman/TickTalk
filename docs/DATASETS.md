@@ -102,6 +102,24 @@ result is itself a data point for our fairness section: the absence of
 diverse EM imagery in medical education is a documented, published gap —
 one our project should name explicitly rather than quietly inherit.
 
+**Kaggle "Lyme Disease Erythema Migraines Rash Database"**
+(kaggle.com/datasets/sshikamaru, ~5,000+ images, "First Open Source Lyme
+Dataset") — checked and rejected, 2026-09-20. Three independent red
+flags: License field literally says "Unknown"; dataset description says
+"No description available" (zero provenance — no statement of image
+source, no consent, no IRB); Kaggle's own Usability score is 1.25/10,
+with only 53 downloads and 0 comments in 4 years (no community vetting).
+"Open source" in the title is marketing copy, not a license — nothing on
+the page backs it up. This almost certainly is (or overlaps with) one of
+the scraped-from-web compilations described in the paragraph above, just
+without even a paper's methodology section admitting it. Do not use, and
+don't waste time re-evaluating it later — this note is the record of why.
+
+**CDC** does not have a bulk downloadable EM dataset, despite that being
+a reasonable-sounding assumption. What they have is individual reference
+images and PDFs (e.g. the one PHIL photo already covered in the Wikimedia
+section below) — useful as single reference images, not a dataset.
+
 ## Wikimedia reference images (local pipeline testing only, not a dataset)
 Five candidate erythema migrans images pulled via
 `backend/eval/fetch_reference_images.sh` for sanity-testing the OpenCV
