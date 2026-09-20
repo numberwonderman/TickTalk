@@ -10,14 +10,39 @@ This is intentionally thin: all Qwen-specific prompting/parsing lives here
 so that swapping in a stronger model later (per the brief) means writing a
 new adapter, not touching the triage engine or API layer.
 
+Model confirmed: Qwen2.5-VL-32B-Instruct
+(https://huggingface.co/Qwen/Qwen2.5-VL-32B-Instruct). This is a real
+sizing constraint, not a detail:
+  - Apache-2.0 licensed -- no restriction on our (or the competition's)
+    use, good news on that front.
+  - Full fp16 weights are ~65GB -- effectively datacenter-GPU-only, not
+    "load it on a laptop." An AWQ-quantized build
+    (Qwen/Qwen2.5-VL-32B-Instruct-AWQ) reportedly fits a single 24GB
+    consumer GPU (3090/4090-class), which is almost certainly what Brett
+    is actually running given he described this as a local in-process
+    tool -- confirm which build/quantization he's using rather than
+    assume.
+  - Reported latency for the AWQ build is roughly 5-9s per request on an
+    RTX A6000 (48GB) at vLLM defaults -- a single-digit-seconds-per-image
+    budget is fine for our one-shot triage request (not a live-video
+    use case), but confirm on Brett's actual hardware, and note this
+    makes "load it inside the FastAPI request-handling process" a real
+    startup-time and memory commitment (see __init__ below), not a minor
+    detail.
+  - This also changes the AWS-hosting picture in infra/README.md: hosting
+    a 32B VLM (even quantized) needs a GPU instance, which is a real,
+    ongoing cost -- flagged there for the director's sign-off rather than
+    assumed here.
+
 TODO(Brett): still need from you --
   1. The actual import path / function signature for loading and calling
      the model in-process (e.g. `from qwen_local import QwenClient` then
      `client.generate(image, prompt) -> str`?). Replace the placeholder
      `_load_model` / `_run_inference` calls below with the real thing.
-  2. What checkpoint/size you're running (affects memory footprint and
-     whether it's safe to load inside the FastAPI process vs. needing a
-     separate worker process).
+  2. Which build you're running -- full weights, or the AWQ (or other)
+     quantized version -- and on what GPU/VRAM. Confirms whether loading
+     it inside the FastAPI process is realistic on the hardware we'll
+     actually demo on.
   3. Expected image input type for your loader (PIL.Image? raw bytes? a
      specific tensor shape?) -- converted from our BGR np.ndarray below,
      but need to know the target format.

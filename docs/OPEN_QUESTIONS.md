@@ -71,3 +71,15 @@ before we plan around it.** Treat nothing here as confirmed.
 
 Please verify all of the above against the primary source and tell me what
 changes; I'll adjust the architecture/build plan docs accordingly.
+
+## Non-rules question this now blocks: where does inference run?
+
+Not a rules question, but decided by the answer to #2 above plus the
+director's cost tolerance — added here because it's now concrete. Brett's
+model is confirmed as Qwen2.5-VL-**32B**-Instruct (`backend/app/vision/
+models/qwen_vision_adapter.py`), which needs a real GPU even quantized —
+"a small EC2 instance" was never going to run this. See
+`infra/README.md`'s hosting section for the three options (Brett's local
+machine during a live demo only / RunPod / an AWS GPU instance) and their
+cost tradeoffs. This needs a decision before Milestone 5, and any paid
+option needs the director's explicit sign-off first per the brief.
