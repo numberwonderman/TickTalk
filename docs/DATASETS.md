@@ -102,6 +102,34 @@ result is itself a data point for our fairness section: the absence of
 diverse EM imagery in medical education is a documented, published gap —
 one our project should name explicitly rather than quietly inherit.
 
+## Wikimedia reference images (local pipeline testing only, not a dataset)
+Five candidate erythema migrans images pulled via
+`backend/eval/fetch_reference_images.sh` for sanity-testing the OpenCV
+pipeline against real photos — not part of the datasets above, no
+Fitzpatrick labels, not for the fairness harness. All five are now
+license-verified (Brett, checked each Commons page directly, 2026-09-20):
+
+- **2 CDC/PHIL images** (`PHIL_9875`, `PHIL_9874`) — public domain, no
+  credit legally required (courtesy credit requested by CDC/PHIL).
+- **2 CC BY-SA images** (`Bullseye_Lyme_Disease_Rash.jpg` by Hannah
+  Garrison, CC BY-SA 2.5; `Lyme_Disease_Rash_on_5_year_old.jpg` by
+  Ltshears, CC BY-SA 3.0) — usable with a credit line wherever they
+  appear; share-alike terms apply if either gets edited/built into
+  derivative work (e.g. incorporated into the demo video) rather than
+  just displayed as-is.
+- **1 illustration** (`Erythema_migrans.jpg`) — public domain (CDC), but
+  a 200×200px medical illustration, not a photo — limited practical
+  value.
+
+**Taste flag, separate from the license question:** the CC BY-SA-licensed
+5-year-old photo is a real child's arm. The license permits use, but that
+doesn't settle whether it belongs in public competition materials — worth
+the team's own judgment call before it goes in the video or report, not
+just a license check.
+
+All five are cleared for local pipeline testing regardless. Full detail
+and verify URLs are in the script itself.
+
 ## Implication for TickTalk
 1. **No shortcut to an EM-specific, diverse, cleanly licensed training set
    exists.** Plan the build around that fact rather than assuming one will
