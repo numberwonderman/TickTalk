@@ -12,7 +12,7 @@ EM-specific datasets that exist in the literature were scraped from the open
 web without research-use consent, and Lyme-rash coverage of dark skin tones
 in existing medical education resources is close to zero (see below). That's
 a real constraint on this project, not a detail to gloss over — see
-"Implication for TickCheck" at the end.
+"Implication for TickTalk" at the end.
 
 ## Candidate 1 — DDI (Diverse Dermatology Images)
 - **Source:** Stanford Center for Artificial Intelligence in Medicine and
@@ -82,7 +82,7 @@ result is itself a data point for our fairness section: the absence of
 diverse EM imagery in medical education is a documented, published gap —
 one our project should name explicitly rather than quietly inherit.
 
-## Implication for TickCheck
+## Implication for TickTalk
 1. **No shortcut to an EM-specific, diverse, cleanly licensed training set
    exists.** Plan the build around that fact rather than assuming one will
    turn up.

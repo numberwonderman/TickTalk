@@ -11,7 +11,7 @@ question that decides which option below we pick.
   photos with a lifecycle rule to expire objects after a short retention
   window (draft: 7 days) — we shouldn't retain people's medical photos
   longer than the demo needs. `backend/app/storage/s3_client.py` already
-  fails soft if `TICKCHECK_S3_BUCKET` isn't set, so this is optional for
+  fails soft if `TICKTALK_S3_BUCKET` isn't set, so this is optional for
   local dev.
 - **Hosting (undecided, pick one):**
   1. *Lighter:* static frontend on S3 + CloudFront, backend on a single

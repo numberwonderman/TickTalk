@@ -5,7 +5,7 @@ from app.api.routes.triage import router as triage_router
 from app.core.config import settings
 
 app = FastAPI(
-    title="TickCheck API",
+    title="TickTalk API",
     description="Image-first Lyme disease TRIAGE (not diagnosis) API.",
     version="0.1.0",
 )

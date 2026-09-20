@@ -51,7 +51,7 @@ TRIAGE_COPY: dict[TriageLevel, dict[str, str]] = {
 # Shown on every screen and attached to every API response. Never remove,
 # shrink, or make this dismissible in the UI.
 DISCLAIMER = (
-    "TickCheck is a triage helper, not a medical device and not a "
+    "TickTalk is a triage helper, not a medical device and not a "
     "diagnosis. It cannot confirm or rule out Lyme disease. Only a "
     "clinician can do that. When in doubt, see a doctor."
 )

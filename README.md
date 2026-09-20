@@ -1,10 +1,10 @@
-# TickCheck
+# TickTalk
 
 Image-first **triage** for possible Lyme disease rashes (e.g. erythema
 migrans / "bullseye" rash). Built for the OpenCV AI Competition, powered by
 AWS (build phase ends Oct 26, 2026).
 
-**TickCheck never diagnoses.** It takes a photo (primary input) plus a few
+**TickTalk never diagnoses.** It takes a photo (primary input) plus a few
 supplementary details — tick exposure, how long the rash has been there,
 fever — and returns a triage recommendation: how urgently to see a doctor.
 When it's uncertain, it escalates. It never tells anyone they're "probably

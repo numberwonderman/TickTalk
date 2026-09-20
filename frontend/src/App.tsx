@@ -26,7 +26,7 @@ export function App() {
     <div className="app">
       <DisclaimerBanner />
       <header>
-        <h1>TickCheck</h1>
+        <h1>TickTalk</h1>
         <p>A photo-first triage helper for possible tick-bite rashes.</p>
       </header>
 

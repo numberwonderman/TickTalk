@@ -15,7 +15,7 @@ def store_image(image_bytes: bytes) -> str | None:
     """Returns the S3 key if stored, or None if S3 isn't configured.
     Never raises -- a storage failure must not block a triage result."""
     if not settings.s3_bucket:
-        logger.info("TICKCHECK_S3_BUCKET not set; skipping image storage")
+        logger.info("TICKTALK_S3_BUCKET not set; skipping image storage")
         return None
 
     try:
