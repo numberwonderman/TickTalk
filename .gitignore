@@ -26,3 +26,8 @@ dist/
 *.pt
 *.ckpt
 *.tsbuildinfo
+
+# Downloaded third-party dataset/reference images -- license status
+# varies per file (see docs/DATASETS.md, backend/eval/README.md); never
+# commit these into the repo regardless of source.
+backend/eval/data/
