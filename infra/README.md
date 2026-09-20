@@ -37,14 +37,19 @@ pieces rather than a blocking decision.
      one than the GPU question below. Worth doing deliberately rather
      than defaulting to a generic x86 instance.
   2. **Qwen inference** — a separate, lower-priority decision now.
-     Confirmed model is Qwen2.5-VL-**32B**-Instruct (see
-     `backend/app/vision/models/qwen_vision_adapter.py`): full weights
-     are ~65GB, and even the quantized (AWQ) build needs a real GPU
-     (~24GB VRAM class) — nothing in option 1 above can run this.
-     **Per `docs/OPEN_QUESTIONS.md`, the competition accepts a live
+     Two models are being evaluated: Qwen2.5-VL-**32B**-Instruct (see
+     `backend/app/vision/models/qwen2_5_vl_32b_adapter.py`) — full
+     weights ~65GB, even the quantized (AWQ) build needs a real GPU
+     (~24GB VRAM class) — and Qwen3-VL-**8B**-Instruct
+     (`qwen3_vl_8b_adapter.py`) — full weights ~18GB, fits a single
+     consumer GPU with no quantization needed, meaningfully cheaper and
+     faster to host if it turns out accurate enough. Nothing in option 1
+     above (CPU-only Graviton) can run either. **Per
+     `docs/OPEN_QUESTIONS.md`, the competition accepts a live
      screen-share demo in place of a hosted endpoint, so we are likely
-     not required to solve this at all for submission.** Options, in
-     order of preference:
+     not required to solve this at all for submission** — and if we do,
+     the 8B model makes it meaningfully cheaper regardless of which
+     option below we pick. Options, in order of preference:
      - **Brett's local machine**, used for a live demo — no ongoing
        cost, and per the rules finding above, this may be sufficient on
        its own.

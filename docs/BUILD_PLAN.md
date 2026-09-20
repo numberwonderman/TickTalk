@@ -22,8 +22,12 @@ flashy demo with a training pipeline nobody trusts.
       first-pass license/consent re-verification directly at the source
       (don't trust the summary alone).
 - [ ] Get Brett's local Qwen Vision setup talking to the `VisionModel`
-      interface (`backend/app/vision/model_interface.py`) via the
-      `QwenVisionAdapter` stub — doesn't need to be accurate yet, just wired.
+      interface (`backend/app/vision/model_interface.py`). Two adapter
+      stubs now exist — `qwen2_5_vl_32b_adapter.py` and
+      `qwen3_vl_8b_adapter.py` — wire up whichever Brett gets to first;
+      doesn't need to be accurate yet, just wired. Once both are wired,
+      benchmark them against each other on real images before picking a
+      default (see docs/ARCHITECTURE.md).
 
 ## Milestone 1 — OpenCV pipeline is real (by Oct 4)
 - [ ] Preprocessing: color normalization (gray-world white balance),

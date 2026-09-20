@@ -9,8 +9,9 @@
   import ahead of an LLM call.
 - AWS used where it earns its place (storage, hosting); not a checkbox
   integration.
-- Vision model is swappable: local Qwen-VL today, a stronger model later,
-  without touching the triage engine.
+- Vision model is swappable: currently evaluating two local Qwen-VL
+  options (2.5-VL-32B and 3-VL-8B), a stronger model later, without
+  touching the triage engine.
 - No GPU infra assumed. Boring and shippable over impressive and fragile.
 
 ## System shape
@@ -35,12 +36,12 @@
      ┌───────────────────────┐         ┌───────────────────────────┐
      │   OpenCV pipeline      │         │   Swappable vision model   │
      │  (backend/app/vision)  │         │  VisionModel interface     │
-     │  - preprocessing        │         │  - QwenVisionAdapter (now) │
-     │  - segmentation          │        │  - future: stronger VLM,   │
-     │  - feature extraction    │        │    or AWS Bedrock/Rekog.   │
-     │    (border, color,       │        │    as a secondary signal   │
-     │     radial ring profile) │        └──────────────┬─────────────┘
-     └────────────┬─────────────┘                        │
+     │  - preprocessing        │         │  - 2 Qwen adapters (32B,   │
+     │  - segmentation          │        │    8B) being compared now  │
+     │  - feature extraction    │        │  - future: stronger VLM,   │
+     │    (border, color,       │        │    or AWS Bedrock/Rekog.   │
+     │     radial ring profile) │        │    as a secondary signal   │
+     └────────────┬─────────────┘        └──────────────┬─────────────┘
                   └──────────────────┬────────────────────┘
                                      ▼
                      ┌─────────────────────────┐
@@ -107,22 +108,31 @@ diagnosis field, by design).
 - `MockVisionModel` — deterministic stub for local dev/tests. Always
   returns low confidence, so the default local dev experience is "this
   escalates," matching the product's own safety bias.
-- `QwenVisionAdapter` — calls Brett's local Qwen-VL setup **in-process**
-  (loaded in memory by the backend, confirmed with Brett — not an HTTP
-  service). This is a thin adapter; the prompt/parsing logic lives here so
-  swapping models later means writing a new adapter class, not touching
-  the triage engine. Still needs from Brett: the actual load/call
-  interface, checkpoint size, input format, and per-image latency — see
-  the TODOs in `qwen_vision_adapter.py`. Uses a structured-JSON prompt
-  (same pattern Brett validated on an unrelated footage-classification
-  project — ask the model for an exact JSON shape including a confidence
-  field). That self-reported confidence should not be trusted as
-  calibrated without validating it against labeled data first (Milestone
-  4) — an LLM's own confidence number is not the same thing as the
-  calibrated probability the triage engine's escalation logic assumes.
+- **Two Qwen adapters, evaluated side by side, no default assumed:**
+  `Qwen25VL32BAdapter` (`qwen2_5_vl_32b_adapter.py`) and `Qwen3VL8BAdapter`
+  (`qwen3_vl_8b_adapter.py`). Both call Brett's local Qwen-VL setup
+  **in-process** (loaded in memory by the backend, confirmed with Brett —
+  not an HTTP service). The 8B model was added after confirming
+  cloud-GPU hosting would remove the "must fit Brett's local card"
+  constraint that originally motivated the 32B choice — but 8B is being
+  tried on its own merits (smaller footprint, no quantization needed,
+  faster/cheaper), not just convenience, and nobody has benchmarked
+  either against real rash photos yet, so neither is preferred by
+  default. Both are thin adapters; model-specific loading/calling code
+  lives in each file, while the JSON prompt and response-parsing contract
+  is shared via `_qwen_common.py` so the two models' outputs stay
+  directly comparable. Still needs from Brett, for each: the actual
+  load/call interface, checkpoint/precision, input format, and per-image
+  latency — see the TODOs in both files. The shared prompt asks for a
+  structured JSON shape including a confidence field (same pattern Brett
+  validated on an unrelated footage-classification project). That
+  self-reported confidence should not be trusted as calibrated without
+  validating it against labeled data first (Milestone 4) — an LLM's own
+  confidence number is not the same thing as the calibrated probability
+  the triage engine's escalation logic assumes.
 - `registry.py` picks the adapter from `VISION_MODEL_BACKEND` env var
-  (`mock` | `qwen_local`), so backend, tests, and demo can run without the
-  real model available.
+  (`mock` | `qwen_local_32b` | `qwen_local_8b`), so backend, tests, and
+  demo can run without either real model available.
 
 **Alternative considered:** call a cloud VLM (Bedrock, or another hosted
 vision API) as the primary model instead of local Qwen. Rejected for now —
