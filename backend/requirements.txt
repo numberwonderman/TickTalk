@@ -1,11 +1,15 @@
-fastapi>=0.115
-uvicorn[standard]>=0.32
-python-multipart>=0.0.12
-opencv-python-headless>=4.10
-numpy>=1.26
-pydantic>=2.9
-boto3>=1.35
+# Exact pins for reproducible builds (competition deliverable: "pinned
+# dependencies"). Bump deliberately and re-run tests, never float.
+fastapi==0.141.1
+uvicorn[standard]==0.53.0
+python-multipart==0.0.32
+# OpenCV 5 is a competition requirement (docs/OPEN_QUESTIONS.md) --
+# tests/test_opencv_version.py fails if this ever drops back to 4.x.
+opencv-python-headless==5.0.0.93
+numpy==2.4.6
+pydantic==2.13.5
+boto3==1.43.100
 
 # dev / test
-pytest>=8.3
-httpx>=0.27
+pytest==9.1.1
+httpx==0.28.1

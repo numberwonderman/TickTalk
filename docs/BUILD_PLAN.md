@@ -151,11 +151,16 @@ unchanged too.
       this is a required deliverable, not optional polish. Our disclaimer
       design and the fairness eval approach are the substance of this
       section; make sure it's stated explicitly, not left implicit.
-- [ ] Pin dependencies. The frontend has a committed
-      `package-lock.json`, but `backend/requirements.txt` still uses
-      `>=` ranges, and it allows `opencv-python-headless>=4.10` even
-      though the rules require OpenCV 5. Fix both. Then confirm build/test
-      instructions in the README are accurate and complete — both are
+- [x] Pin dependencies and require OpenCV 5 (done Sep 23). The
+      frontend has a committed `package-lock.json`, and
+      `backend/requirements.txt` pins every direct dependency exactly,
+      including `opencv-python-headless==5.0.0.93`.
+      `backend/tests/test_opencv_version.py` fails if OpenCV ever drops
+      back to 4.x. Transitive deps aren't locked: a `pip freeze` lock
+      drops platform markers (e.g. uvloop), and that breaks installs on
+      other OSes.
+- [ ] Confirm build/test instructions in the README are accurate and
+      complete. Pinning and these instructions are both
       required deliverables, and both feed the confirmed "Cloud
       delivery, reproducibility, and responsible operation" 10% judging
       criterion, not just the "documentation and presentation" 10%.

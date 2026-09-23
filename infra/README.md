@@ -35,7 +35,14 @@ pieces rather than a blocking decision.
      unlike anything GPU. Still a provisioning decision that needs the
      director's sign-off before anything is spun up, but a much smaller
      one than the GPU question below. Worth doing deliberately rather
-     than defaulting to a generic x86 instance.
+     than defaulting to a generic x86 instance. Wheel check (Sep 23):
+     the pinned `opencv-python-headless==5.0.0.93` and `numpy==2.4.6`
+     both ship `manylinux_2_28_aarch64` wheels, so they install on ARM
+     as-is. They need glibc ≥ 2.28, which Amazon Linux 2023 and Debian
+     bookworm (the Docker base) have and Amazon Linux 2 doesn't. Use
+     AL2023 or the Docker image, not AL2. The COOL-optimized OpenCV
+     build itself hasn't been looked at yet; it may replace the PyPI
+     wheel on that instance.
   2. **Qwen inference — not hosted.** Solo-project update (Sep 22,
      2026, see `docs/BUILD_PLAN.md`): with Brett gone there's no local GPU,
      and Qwen2.5-VL-32B plus the 8B-vs-32B benchmark are cut. The only
