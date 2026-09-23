@@ -1,12 +1,11 @@
 """Shared prompt + response-parsing logic for Qwen adapters.
 
-Split out once we had two Qwen adapters (2.5-VL-32B and 3-VL-8B) so the
-prompt/JSON-schema contract lives in exactly one place -- if it drifts
-between adapters, the two models stop being comparable, which defeats the
-point of running them side by side (see docs/ARCHITECTURE.md's
-model-comparison plan). Model-specific loading/calling code stays in each
-adapter's own file; only what's identical across any Qwen-VL model lives
-here.
+Split out when we had two Qwen adapters (2.5-VL-32B and 3-VL-8B). The
+32B one has since been cut (docs/BUILD_PLAN.md, "Scope cuts"), but the
+split stays useful: the prompt/JSON-schema contract lives in one place, so
+a future swapped-in Qwen-VL model gets the same prompt and its outputs
+stay comparable. Model-specific loading/calling code stays in each
+adapter's own file.
 """
 
 import json

@@ -36,31 +36,21 @@ pieces rather than a blocking decision.
      director's sign-off before anything is spun up, but a much smaller
      one than the GPU question below. Worth doing deliberately rather
      than defaulting to a generic x86 instance.
-  2. **Qwen inference** — a separate, lower-priority decision now.
-     Two models are being evaluated: Qwen2.5-VL-**32B**-Instruct (see
-     `backend/app/vision/models/qwen2_5_vl_32b_adapter.py`) — full
-     weights ~65GB, even the quantized (AWQ) build needs a real GPU
-     (~24GB VRAM class) — and Qwen3-VL-**8B**-Instruct
-     (`qwen3_vl_8b_adapter.py`) — full weights ~18GB, fits a single
-     consumer GPU with no quantization needed, meaningfully cheaper and
-     faster to host if it turns out accurate enough. Nothing in option 1
-     above (CPU-only Graviton) can run either. **Per
-     `docs/OPEN_QUESTIONS.md`, the competition accepts a live
-     screen-share demo in place of a hosted endpoint, so we are likely
-     not required to solve this at all for submission** — and if we do,
-     the 8B model makes it meaningfully cheaper regardless of which
-     option below we pick. Options, in order of preference:
-     - **Brett's local machine**, used for a live demo — no ongoing
-       cost, and per the rules finding above, this may be sufficient on
-       its own.
-     - **RunPod** GPU pod, only if we decide a public endpoint is worth
-       having beyond what the rules require. Real, modest ongoing cost.
-     - **AWS GPU instance** — most expensive option; no longer looks
-       necessary given the live-demo allowance.
-     - Any paid option here still needs the director's explicit
-       sign-off, but this is no longer a blocking decision for
-       Milestone 5 — it can wait until closer to the deadline, once it's
-       clear whether a public endpoint is actually worth building.
+  2. **Qwen inference — not hosted.** Solo-project update (Sep 22,
+     2026, see `docs/BUILD_PLAN.md`): with Brett gone there's no local GPU,
+     and Qwen2.5-VL-32B plus the 8B-vs-32B benchmark are cut. The only
+     VLM is Qwen3-VL-**8B**-Instruct (`qwen3_vl_8b_adapter.py`). Full
+     weights are ~18GB, so it fits one 24GB-class GPU with no
+     quantization. It runs on a **RunPod spot GPU for the eval pass
+     only**. That's pay-as-you-go at roughly $0.12–0.34/hr: start a pod,
+     run the whole labeled set in one batch, shut it down. Nothing in
+     option 1 above (CPU-only Graviton) can run it, and it isn't part
+     of the deployed system. Per `docs/OPEN_QUESTIONS.md`, the rules
+     accept a live screen-share demo instead of a hosted endpoint, so
+     there's no need for a permanent public GPU endpoint. What the VLM
+     does in the live demo (mock-only, or a short-lived spot pod while
+     recording) is an open decision in `docs/BUILD_PLAN.md` Milestone 5.
+     An AWS GPU instance is ruled out on cost.
 
 ## Explicitly not doing
 
@@ -74,7 +64,8 @@ pieces rather than a blocking decision.
 
 ## RunPod
 
-See the Qwen inference options above — RunPod is now a "only if we decide
-a public endpoint is worth it beyond what the rules require" option, not
-a default plan. Not provisioned; needs the director's sign-off if it
-becomes relevant.
+Used only as a temporary GPU for the Qwen3-VL-8B eval pass (see the Qwen
+inference section above). It's spot, pay-as-you-go, and shut down as soon
+as the batch is done, never left running. Not provisioned yet. It's a
+real (small) cost, so it still needs the director's sign-off like any
+other paid resource.

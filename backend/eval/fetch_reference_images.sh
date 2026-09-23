@@ -30,7 +30,7 @@
 #     real child's arm. License permits use, but think about whether it
 #     belongs in a public demo video regardless -- a license clearing use
 #     isn't the same as it being the right call to feature a minor's
-#     photo in competition materials. Worth the team's judgment call, not
+#     photo in competition materials. Worth Franklin's judgment call, not
 #     just a license check, before it goes in anything public-facing.
 #
 # All five are cleared for local pipeline testing regardless. For

@@ -9,9 +9,9 @@
   import ahead of an LLM call.
 - AWS used where it earns its place (storage, hosting); not a checkbox
   integration.
-- Vision model is swappable: currently evaluating two local Qwen-VL
-  options (2.5-VL-32B and 3-VL-8B), a stronger model later, without
-  touching the triage engine.
+- Vision model is swappable: Qwen3-VL-8B now (run on a RunPod spot GPU
+  for the eval pass only), a stronger model later, without touching the
+  triage engine.
 - No GPU infra assumed. Boring and shippable over impressive and fragile.
 
 ## System shape
@@ -36,8 +36,8 @@
      ┌───────────────────────┐         ┌───────────────────────────┐
      │   OpenCV pipeline      │         │   Swappable vision model   │
      │  (backend/app/vision)  │         │  VisionModel interface     │
-     │  - preprocessing        │         │  - 2 Qwen adapters (32B,   │
-     │  - segmentation          │        │    8B) being compared now  │
+     │  - preprocessing        │         │  - Qwen3-VL-8B adapter     │
+     │  - segmentation          │        │    (RunPod, eval pass)     │
      │  - feature extraction    │        │  - future: stronger VLM,   │
      │    (border, color,       │        │    or AWS Bedrock/Rekog.   │
      │     radial ring profile) │        │    as a secondary signal   │
@@ -108,31 +108,29 @@ diagnosis field, by design).
 - `MockVisionModel` — deterministic stub for local dev/tests. Always
   returns low confidence, so the default local dev experience is "this
   escalates," matching the product's own safety bias.
-- **Two Qwen adapters, evaluated side by side, no default assumed:**
-  `Qwen25VL32BAdapter` (`qwen2_5_vl_32b_adapter.py`) and `Qwen3VL8BAdapter`
-  (`qwen3_vl_8b_adapter.py`). Both call Brett's local Qwen-VL setup
-  **in-process** (loaded in memory by the backend, confirmed with Brett —
-  not an HTTP service). The 8B model was added after confirming
-  cloud-GPU hosting would remove the "must fit Brett's local card"
-  constraint that originally motivated the 32B choice — but 8B is being
-  tried on its own merits (smaller footprint, no quantization needed,
-  faster/cheaper), not just convenience, and nobody has benchmarked
-  either against real rash photos yet, so neither is preferred by
-  default. Both are thin adapters; model-specific loading/calling code
-  lives in each file, while the JSON prompt and response-parsing contract
-  is shared via `_qwen_common.py` so the two models' outputs stay
-  directly comparable. Still needs from Brett, for each: the actual
-  load/call interface, checkpoint/precision, input format, and per-image
-  latency — see the TODOs in both files. The shared prompt asks for a
-  structured JSON shape including a confidence field (same pattern Brett
-  validated on an unrelated footage-classification project). That
+- **One Qwen adapter: `Qwen3VL8BAdapter` (`qwen3_vl_8b_adapter.py`).**
+  Earlier there were two, 2.5-VL-32B and 3-VL-8B, meant to be
+  benchmarked against each other on Brett's local GPU. After Brett left
+  (Sep 22, 2026) that benchmark and the 32B adapter were cut: there's no
+  hardware for 32B, and no time solo. See `docs/BUILD_PLAN.md`, "Scope
+  cuts". The 8B model runs on a **RunPod spot GPU for the eval pass
+  only** and isn't hosted as part of the deployed app. It still loads
+  **in-process** (the eval code runs on the pod and calls the model
+  directly, with no HTTP inference server). The adapter is thin: loading
+  and calling code lives in the adapter file, and the JSON prompt and
+  response-parsing contract lives in `_qwen_common.py`. What's still
+  needed to wire it up (loader, precision/GPU type, input format,
+  latency) is in the file's TODOs. The shared prompt asks for a
+  structured JSON shape including a confidence field (a pattern Brett
+  had validated on an unrelated footage-classification project). That
   self-reported confidence should not be trusted as calibrated without
-  validating it against labeled data first (Milestone 4) — an LLM's own
+  validating it against labeled data first (Milestone 4). An LLM's own
   confidence number is not the same thing as the calibrated probability
   the triage engine's escalation logic assumes.
 - `registry.py` picks the adapter from `VISION_MODEL_BACKEND` env var
-  (`mock` | `qwen_local_32b` | `qwen_local_8b`), so backend, tests, and
-  demo can run without either real model available.
+  (`mock` | `qwen_local_8b`), so the backend, tests, and demo can run
+  without a GPU. What the VLM does in the live demo is still open; see
+  `docs/BUILD_PLAN.md` Milestone 5.
 
 **Alternative considered:** call a cloud VLM (Bedrock, or another hosted
 vision API) as the primary model instead of local Qwen. Rejected for now —
@@ -169,12 +167,12 @@ benefits from static generation.
 
 See `infra/README.md` for the current plan and its reasoning (kept there
 rather than duplicated here, since it's changed twice already as the
-competition rules and Brett's model got confirmed). Short version: S3 for
+competition rules got confirmed and the team went solo). Short version: S3 for
 image storage; the CPU-only API/OpenCV/triage backend targets a small AWS
 Graviton instance specifically to qualify for the competition's "COOL"
-special award; Qwen inference hosting (RunPod or otherwise) is deferred
-and no longer blocking, since the rules accept a live demo in place of a
-hosted endpoint. Every item with an ongoing cost needs the director's
+special award. Qwen inference isn't hosted at all: it runs on a RunPod
+spot GPU for the eval pass only, and the rules accept a live demo in
+place of a hosted endpoint. Every item with an ongoing cost needs the director's
 sign-off before provisioning, per the brief.
 
 ## Triage levels (see `backend/app/triage/levels.py` for the source of truth)

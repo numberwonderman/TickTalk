@@ -2,7 +2,8 @@
 
 Image-first **triage** for possible Lyme disease rashes (e.g. erythema
 migrans / "bullseye" rash). Built for the OpenCV AI Competition, powered by
-AWS (build phase ends Oct 26, 2026).
+AWS (build phase ends Oct 26, 2026). Solo project by Franklin since Sep
+22, 2026. See `docs/BUILD_PLAN.md` for what changed.
 
 **TickTalk never diagnoses.** It takes a photo (primary input) plus a few
 supplementary details — tick exposure, how long the rash has been there,
@@ -93,15 +94,14 @@ hosting approach in `docs/BUILD_PLAN.md` Milestone 5.)
 
 The backend defaults to `VISION_MODEL_BACKEND=mock`, a deterministic
 low-confidence stub, so the app runs end-to-end with no ML dependency
-installed. Two real-model adapters are being evaluated side by side —
-`backend/app/vision/models/qwen2_5_vl_32b_adapter.py`
-(`VISION_MODEL_BACKEND=qwen_local_32b`) and
-`qwen3_vl_8b_adapter.py` (`VISION_MODEL_BACKEND=qwen_local_8b`) — both
-against Brett's local Qwen-VL setup, which runs **in-process** (loaded in
-memory), not as an HTTP service. Neither is the assumed default; see
-`docs/ARCHITECTURE.md`'s "Swappable vision model" section for why. See
-the TODOs in each adapter file for what's still needed to finish wiring
-it up, and `backend/app/vision/model_interface.py` for the interface
+installed. The one real-model adapter is Qwen3-VL-8B,
+`backend/app/vision/models/qwen3_vl_8b_adapter.py`
+(`VISION_MODEL_BACKEND=qwen_local_8b`). It loads the model
+**in-process** (in memory, not as an HTTP service), and it runs on a
+RunPod spot GPU for the eval pass only. It isn't hosted as part of the
+deployed app. The 32B adapter and the 8B-vs-32B benchmark were cut; see
+`docs/BUILD_PLAN.md`, "Scope cuts". The adapter's TODOs list what's
+still needed to wire it up. See `backend/app/vision/model_interface.py` for the interface
 every model (current or future) implements — swapping models should
 never require touching the triage engine.
 

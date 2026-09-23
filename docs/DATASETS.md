@@ -29,10 +29,11 @@ a real constraint on this project, not a detail to gloss over — see
   commercial use, sale, or monetization. Fine for a hackathon prototype and
   eval; would need a different license before any commercial use.
   Confirmed additional terms (Muse verification pass, 2026-09-20): **each
-  team member must register individually** — download links may not be
-  shared between us — and redistribution/publication/reproduction of any
-  portion requires prior written permission. Also explicit: research use
-  only, not for diagnosis or patient care (matches our own "triage, not
+  team member must register individually**, and download links may not be
+  shared. Now that it's a solo project, Franklin just registers once,
+  with nothing to coordinate. Also, redistribution/publication/
+  reproduction of any portion requires prior written permission. Also
+  explicit: research use only, not for diagnosis or patient care (matches our own "triage, not
   diagnosis" boundary anyway, but worth knowing it's contractual here too).
 - **Access speed:** fast — registration via https://ddi-dataset.github.io/
   is straightforward, no lengthy request process.
@@ -142,7 +143,7 @@ license-verified (Brett, checked each Commons page directly, 2026-09-20):
 **Taste flag, separate from the license question:** the CC BY-SA-licensed
 5-year-old photo is a real child's arm. The license permits use, but that
 doesn't settle whether it belongs in public competition materials — worth
-the team's own judgment call before it goes in the video or report, not
+Franklin's judgment call before it goes in the video or report, not
 just a license check.
 
 All five are cleared for local pipeline testing regardless. Full detail
@@ -170,8 +171,8 @@ and verify URLs are in the script itself.
    model's guess at skin tone.
 
 ## Access-speed ordering (for sequencing the download work)
-PASSION (fastest, direct download) → DDI (fast, individual registration
-per team member) → Fitzpatrick17k images (slowest — dead source links and
+PASSION (fastest, direct download) → DDI (fast, Franklin registers
+individually) → Fitzpatrick17k images (slowest — dead source links and
 a request form). All three confirmed realistically obtainable within the
 ~5-week build timeline (Muse verification pass, 2026-09-20). Start
 Fitzpatrick17k's image request early given it's the long pole, even if

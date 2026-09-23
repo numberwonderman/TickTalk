@@ -7,7 +7,7 @@ normal web access), reading
 `https://opencv.org/opencv-ai-competition-2026/` directly on 2026-09-20.
 Treat this as a real verification pass, not a search-snippet guess like
 the first version of this doc — but the IP-license item below is worth
-your own eyes before the team finalizes what goes in the report/video.
+your own eyes before Franklin finalizes what goes in the report/video.
 
 ## Confirmed
 - **Deadline:** Oct 26, 2026, 11:59 p.m. Pacific Time.
@@ -74,16 +74,18 @@ your own eyes before the team finalizes what goes in the report/video.
   family/household members, and anyone directly administering or judging
   the competition (and their household members). Each entry gets at
   least two independent, conflict-free scores; AWS may nominate up to two
-  judges. Neither of us is affiliated — no action needed, just confirmed.
+  judges. Franklin is not affiliated — no action needed, just confirmed.
 
 ## Still genuinely unresolved — the official page contradicts itself
 - **Team size:** the rules page itself has two conflicting numbers — one
   section says "teams of up to five," the Terms section says "no more
   than four." The page states Devpost's Official Rules control in case of
   conflict, but that doesn't resolve which of the page's own two numbers
-  is the error. **Leave this flagged, not settled** — our 2-person team
-  fits either reading, so it's not urgent, but don't cite a specific cap
-  in anything public-facing.
+  is the error. **Leave this flagged, not settled.** Since Sep 22, 2026
+  TickTalk is a solo entry (Franklin only), which fits either reading, so
+  it's moot for us. Still, don't cite a specific cap in anything
+  public-facing. **Manual task:** update the Devpost entry to solo and
+  remove Brett.
 
 ## New: IP license on submitted materials — worth the director's attention
 Submitting grants OpenCV **and** AWS a perpetual, irrevocable, worldwide,
