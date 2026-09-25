@@ -62,3 +62,15 @@ class MockVisionModel(VisionModel):
             overall_confidence=0.3,
             notes="mock model: no real inference performed",
         )
+
+
+def failed_analysis_output() -> VisionModelOutput:
+    """What the API uses when a model raises or returns unparseable output.
+    Zero confidence, so the triage engine's "low confidence escalates" rule
+    applies; see app/api/routes/triage.py."""
+    return VisionModelOutput(
+        lesion_present_confidence=0.0,
+        bullseye_pattern_confidence=0.0,
+        overall_confidence=0.0,
+        notes="vision model failed; no usable output",
+    )

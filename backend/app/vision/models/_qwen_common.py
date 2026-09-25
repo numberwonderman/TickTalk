@@ -9,6 +9,8 @@ adapter's own file.
 """
 
 import json
+import math
+import re
 
 from app.vision.model_interface import VisionModelOutput
 
@@ -40,14 +42,32 @@ All confidence values are floats between 0.0 and 1.0."""
 
 def parse_structured_response(raw_json_text: str) -> VisionModelOutput:
     """Parses a model's raw text output against the PROMPT's JSON schema.
-    Raises ValueError (via json.JSONDecodeError/KeyError) on malformed
-    output -- the caller should treat that as a low-confidence result
-    (see model_interface.py), not crash the request.
+
+    Tolerates a ```json ... ``` code fence around the object (Qwen models
+    often add one) and clamps confidences to [0, 1]. Raises ValueError on
+    anything else malformed; the API route turns that into a
+    zero-confidence result that escalates (see app/api/routes/triage.py).
     """
-    data = json.loads(raw_json_text)
-    return VisionModelOutput(
-        lesion_present_confidence=float(data["lesion_present_confidence"]),
-        bullseye_pattern_confidence=float(data["bullseye_pattern_confidence"]),
-        overall_confidence=float(data["overall_confidence"]),
-        notes=str(data.get("notes", "")),
-    )
+    text = _strip_code_fence(raw_json_text)
+    try:
+        data = json.loads(text)
+        return VisionModelOutput(
+            lesion_present_confidence=_confidence(data["lesion_present_confidence"]),
+            bullseye_pattern_confidence=_confidence(data["bullseye_pattern_confidence"]),
+            overall_confidence=_confidence(data["overall_confidence"]),
+            notes=str(data.get("notes", "")),
+        )
+    except (json.JSONDecodeError, KeyError, TypeError, AttributeError) as exc:
+        raise ValueError(f"Malformed vision model output: {exc}") from exc
+
+
+def _strip_code_fence(text: str) -> str:
+    match = re.fullmatch(r"\s*```(?:json)?\s*(.*?)\s*```\s*", text, re.DOTALL)
+    return match.group(1) if match else text
+
+
+def _confidence(value) -> float:
+    number = float(value)
+    if math.isnan(number):
+        raise ValueError("confidence is NaN")
+    return min(1.0, max(0.0, number))

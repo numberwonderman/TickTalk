@@ -15,6 +15,10 @@ import numpy as np
 # Fraction of the frame the initial GrabCut rectangle covers, centered.
 _GRABCUT_RECT_MARGIN = 0.15
 _GRABCUT_ITERATIONS = 5
+# GrabCut runs on a downscaled copy and its mask is scaled back up. It's
+# the slowest step in the request (seconds at 1024px), and a coarse
+# lesion outline doesn't need full resolution.
+_GRABCUT_MAX_DIMENSION = 512
 
 # If GrabCut's foreground mask covers less than this fraction of the frame,
 # treat it as a failed segmentation and fall back to color thresholding.
@@ -22,7 +26,22 @@ _MIN_PLAUSIBLE_MASK_FRACTION = 0.02
 
 
 def _grabcut_mask(image: np.ndarray) -> np.ndarray:
-    h, w = image.shape[:2]
+    full_h, full_w = image.shape[:2]
+    scale = _GRABCUT_MAX_DIMENSION / max(full_h, full_w)
+    if scale < 1.0:
+        small = cv2.resize(
+            image, (int(full_w * scale), int(full_h * scale)), interpolation=cv2.INTER_AREA
+        )
+        small_mask = _grabcut_mask(small)
+        # Upscale, blur, re-threshold. A plain upscale leaves staircase
+        # edges that inflate the perimeter, and with it border_irregularity
+        # (0.28 vs. 0.11 for an ideal drawn circle on a synthetic bullseye).
+        upscaled = cv2.resize(small_mask, (full_w, full_h), interpolation=cv2.INTER_LINEAR)
+        blur_size = 4 * int(round(1 / scale)) + 1  # 9px at the usual 2x
+        upscaled = cv2.GaussianBlur(upscaled, (blur_size, blur_size), 0)
+        return np.where(upscaled >= 128, 255, 0).astype(np.uint8)
+
+    h, w = full_h, full_w
     margin_x, margin_y = int(w * _GRABCUT_RECT_MARGIN), int(h * _GRABCUT_RECT_MARGIN)
     rect = (margin_x, margin_y, w - 2 * margin_x, h - 2 * margin_y)
 

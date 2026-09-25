@@ -10,8 +10,9 @@ The default is still the mock, so nothing needs a GPU unless you ask for
 one explicitly.
 """
 
-import os
+from functools import lru_cache
 
+from app.core.config import settings
 from app.vision.model_interface import MockVisionModel, VisionModel
 from app.vision.models.qwen3_vl_8b_adapter import Qwen3VL8BAdapter
 
@@ -21,8 +22,12 @@ _BACKENDS = {
 }
 
 
+@lru_cache(maxsize=1)
 def get_vision_model() -> VisionModel:
-    backend = os.environ.get("VISION_MODEL_BACKEND", "mock")
+    """Built once per process and reused. A real VLM loads its weights in
+    __init__ (~18GB for Qwen3-VL-8B), so building one per request would
+    reload them on every call."""
+    backend = settings.vision_model_backend
     try:
         model_cls = _BACKENDS[backend]
     except KeyError as exc:
